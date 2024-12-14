@@ -16,6 +16,7 @@ import { HttpContextFactory } from '@adonisjs/core/factories/http'
 import { defineConfig } from '../index.js'
 import { Inertia } from '../src/inertia.js'
 import { InertiaHeaders } from '../src/headers.js'
+import { ServerRenderer } from '../src/server_renderer.js'
 import { AssetsVersion, InertiaConfig } from '../src/types.js'
 
 type FactoryParameters = {
@@ -80,6 +81,8 @@ export class InertiaFactory {
 
   async create() {
     const config = await defineConfig(this.#parameters.config || {}).resolver(this.#getApp())
+    // @ts-ignore
+    ServerRenderer.runtime = undefined
     return new Inertia(this.#parameters.ctx, config, this.#vite)
   }
 }
