@@ -119,7 +119,7 @@
     "npm": {
       "publish": true,
       "skipChecks": true,
-      "tag": "next"
+      "tag": "latest"
     },
     "plugins": {
       "@release-it/conventional-changelog": {
