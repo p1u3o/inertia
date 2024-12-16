@@ -12,6 +12,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 
 import { Inertia } from './inertia.js'
+import { InertiaHeaders } from './headers.js'
 import type { ResolvedConfig } from './types.js'
 
 /**
@@ -40,10 +41,10 @@ export default class InertiaMiddleware {
 
     await next()
 
-    const isInertiaRequest = !!request.header('x-inertia')
+    const isInertiaRequest = !!request.header(InertiaHeaders.Inertia)
     if (!isInertiaRequest) return
 
-    response.header('Vary', 'Accept')
+    response.header('Vary', InertiaHeaders.Inertia)
 
     /**
      * When redirecting a PUT/PATCH/DELETE request, we need to change the
@@ -63,8 +64,9 @@ export default class InertiaMiddleware {
      * See https://inertiajs.com/the-protocol#asset-versioning
      */
     const version = this.config.versionCache.getVersion().toString()
-    if (method === 'GET' && request.header('x-inertia-version', '') !== version) {
-      response.header('x-inertia-location', request.url())
+    if (method === 'GET' && request.header(InertiaHeaders.Version, '') !== version) {
+      response.removeHeader(InertiaHeaders.Inertia)
+      response.header(InertiaHeaders.Location, request.url())
       response.status(409)
     }
   }

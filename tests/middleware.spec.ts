@@ -12,6 +12,7 @@ import { test } from '@japa/runner'
 import { HttpContextFactory, RequestFactory, ResponseFactory } from '@adonisjs/core/factories/http'
 
 import { Inertia } from '../src/inertia.js'
+import { InertiaHeaders } from '../src/headers.js'
 import { httpServer } from '../tests_helpers/index.js'
 import { VersionCache } from '../src/version_cache.js'
 import InertiaMiddleware from '../src/inertia_middleware.js'
@@ -122,7 +123,7 @@ test.group('Middleware', () => {
     const r1 = await supertest(server).get('/').set('x-inertia', 'true')
     const r2 = await supertest(server).get('/')
 
-    assert.equal(r1.headers.vary, 'Accept')
+    assert.equal(r1.headers.vary, InertiaHeaders.Inertia)
     assert.isUndefined(r2.headers.vary)
   })
 
@@ -180,6 +181,42 @@ test.group('Middleware', () => {
 
     assert.equal(r1.status, 409)
     assert.equal(r1.headers['x-inertia-location'], '/')
+  })
+
+  test('if version has changed response should not includes x-inertia header', async ({
+    assert,
+  }) => {
+    let requestCount = 1
+
+    const version = new VersionCache(new URL(import.meta.url), '1')
+    const middleware = new InertiaMiddleware({
+      rootView: 'root',
+      sharedData: {},
+      versionCache: version,
+      ssr: { enabled: false, bundle: '', entrypoint: '' },
+      history: { encrypt: false },
+    })
+
+    const server = httpServer.create(async (req, res) => {
+      const request = new RequestFactory().merge({ req, res }).create()
+      const response = new ResponseFactory().merge({ req, res }).create()
+      const ctx = new HttpContextFactory().merge({ request, response }).create()
+
+      version.setVersion(requestCount.toString())
+
+      await middleware.handle(ctx, () => {
+        ctx.response.header('x-inertia', 'true')
+        ctx.response.redirect('/foo')
+      })
+
+      ctx.response.finish()
+    })
+
+    const r1 = await supertest(server).get('/').set('x-inertia', 'true')
+
+    assert.equal(r1.status, 409)
+    assert.equal(r1.headers['x-inertia-location'], '/')
+    assert.isUndefined(r1.headers['x-inertia'])
   })
 
   test('if version is provided as integer it should compare it using a toString', async ({
