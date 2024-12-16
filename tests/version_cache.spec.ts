@@ -16,7 +16,7 @@ test.group('Version Cache', () => {
   test('compute hash from manifest file', async ({ assert, fs }) => {
     const version = new VersionCache(fs.baseUrl)
 
-    await fs.create('public/assets/manifest.json', randomBytes(1024 * 1024).toString('hex'))
+    await fs.create('public/assets/.vite/manifest.json', randomBytes(1024 * 1024).toString('hex'))
     await version.computeVersion()
 
     assert.isDefined(version.getVersion())
@@ -25,7 +25,7 @@ test.group('Version Cache', () => {
   test('hash is the same if manifest file does not change', async ({ assert, fs }) => {
     const version = new VersionCache(fs.baseUrl)
 
-    await fs.create('public/assets/manifest.json', randomBytes(1024 * 1024).toString('hex'))
+    await fs.create('public/assets/.vite/manifest.json', randomBytes(1024 * 1024).toString('hex'))
 
     await version.computeVersion()
     const r1 = version.getVersion()
@@ -38,12 +38,12 @@ test.group('Version Cache', () => {
   test('hash is different if manifest file changes', async ({ assert, fs }) => {
     const version = new VersionCache(fs.baseUrl)
 
-    await fs.create('public/assets/manifest.json', randomBytes(1024 * 1024).toString('hex'))
+    await fs.create('public/assets/.vite/manifest.json', randomBytes(1024 * 1024).toString('hex'))
 
     await version.computeVersion()
     const r1 = version.getVersion()
 
-    await fs.create('public/assets/manifest.json', randomBytes(1024 * 1024).toString('hex'))
+    await fs.create('public/assets/.vite/manifest.json', randomBytes(1024 * 1024).toString('hex'))
     version.setVersion(undefined)
     await version.computeVersion()
 
