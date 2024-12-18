@@ -186,6 +186,19 @@ test.group('Inertia', () => {
     assert.deepEqual(result.props, { user: 'jul', message: 'hello' })
   })
 
+  test('shared data are unwrapped when they use always', async ({ assert }) => {
+    setupViewMacroMock()
+
+    const inertia = await new InertiaFactory()
+      .merge({ config: { sharedData: { foo: () => inertia.always(() => 'bar') } } })
+      .withXInertiaHeader()
+      .create()
+
+    const result: any = await inertia.render('foo')
+
+    assert.deepEqual(result.props, { foo: 'bar' })
+  })
+
   test('correct server response when mergeable props is used', async ({ assert }) => {
     const inertia = await new InertiaFactory().withXInertiaHeader().create()
 

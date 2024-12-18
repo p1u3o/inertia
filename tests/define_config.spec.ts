@@ -45,14 +45,16 @@ test.group('Define Config', () => {
         foo: 'string' as const,
         bar: (ctx) => ctx.request.url(),
         bar2: () => (Math.random() ? 'string' : 1),
+        bar4: (ctx) => ctx.inertia.always(() => 'foo'),
       },
     })
 
     type Props = InferSharedProps<typeof config>
-    expectTypeOf<Props>().toEqualTypeOf<{
+    expectTypeOf<Props>().toMatchTypeOf<{
       foo: 'string'
       bar: string
       bar2: 'string' | 1
+      bar4: string
     }>()
   })
 

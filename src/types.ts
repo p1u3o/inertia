@@ -173,7 +173,9 @@ type InferProps<T> = {
 
 type ReturnsTypesSharedData<T extends SharedData> = {} extends T
   ? {}
-  : { [K in keyof T]: T[K] extends (...args: any[]) => MaybePromise<infer U> ? U : T[K] }
+  : InferProps<{
+      [K in keyof T]: T[K] extends (...args: any[]) => MaybePromise<infer U> ? U : T[K]
+    }>
 
 /**
  * Infer shared data types from the config provider

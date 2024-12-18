@@ -136,6 +136,22 @@ export class Inertia {
   }
 
   /**
+   * Resolve a single prop
+   */
+  async #resolveProp(key: string, value: any) {
+    if (
+      value instanceof OptionalProp ||
+      value instanceof MergeProp ||
+      value instanceof DeferProp ||
+      value instanceof AlwaysProp
+    ) {
+      return [key, await value.callback()]
+    }
+
+    return [key, value]
+  }
+
+  /**
    * Resolve a single prop by calling the callback or resolving the promise
    */
   async #resolvePageProps(props: PageProps = {}) {
@@ -143,19 +159,11 @@ export class Inertia {
       await Promise.all(
         Object.entries(props).map(async ([key, value]) => {
           if (typeof value === 'function') {
-            return [key, await value(this.ctx)]
+            const result = await value(this.ctx)
+            return this.#resolveProp(key, result)
           }
 
-          if (
-            value instanceof OptionalProp ||
-            value instanceof MergeProp ||
-            value instanceof DeferProp ||
-            value instanceof AlwaysProp
-          ) {
-            return [key, await value.callback()]
-          }
-
-          return [key, value]
+          return this.#resolveProp(key, value)
         })
       )
     )
