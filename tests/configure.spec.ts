@@ -246,7 +246,7 @@ test.group('Frameworks | SSR', (group) => {
          * Data that should be shared with all rendered pages
          */
         sharedData: {
-          errors: (ctx) => ctx.session?.flashMessages.get('errors'),
+          errors: (ctx) => ctx.inertia.always(() => ctx.session?.flashMessages.get('errors')),
         },
 
         /**
@@ -299,7 +299,7 @@ test.group('Frameworks | SSR', (group) => {
          * Data that should be shared with all rendered pages
          */
         sharedData: {
-          errors: (ctx) => ctx.session?.flashMessages.get('errors'),
+          errors: (ctx) => ctx.inertia.always(() => ctx.session?.flashMessages.get('errors')),
         },
 
         /**
@@ -352,7 +352,7 @@ test.group('Frameworks | SSR', (group) => {
          * Data that should be shared with all rendered pages
          */
         sharedData: {
-          errors: (ctx) => ctx.session?.flashMessages.get('errors'),
+          errors: (ctx) => ctx.inertia.always(() => ctx.session?.flashMessages.get('errors')),
         },
 
         /**
